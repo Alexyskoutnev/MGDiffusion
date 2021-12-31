@@ -68,7 +68,7 @@
   [../]
   [./layered_integral]
     type = LayeredIntegral
-    direction = z
+    direction = x
     num_layers = 20
     variable = temperature
     execute_on = TIMESTEP_END
@@ -80,7 +80,7 @@
   [./integral_out]
     type = IntegralUserObject
     userobject = layered_integral
-    q_triple_prime = reader
+  #  q_triple_prime = reader
   []
   [./read_data]
     type = CSVReader
