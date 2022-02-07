@@ -72,8 +72,9 @@
 []
 
 [Executioner]
-  type = Eigenvalue
+  type = Transient
   solve_type = 'Newton'
+
   free_power_iterations = 4
   nl_abs_tol = 1e-8
   nl_max_its = 10000

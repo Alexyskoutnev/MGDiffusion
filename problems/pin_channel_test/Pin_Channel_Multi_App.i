@@ -10,8 +10,8 @@
     iz = '2 30 2'
     subdomain_id = '99 99
             99 99
-             1  2
-             3  4
+             1  1
+             1  1
             
             99 99
             99 99'
@@ -73,12 +73,12 @@
   type = Eigenvalue
   solve_type = 'Newton'
   free_power_iterations = 4
-  nl_abs_tol = 1e-5
-  nl_max_its = 1000
+  nl_abs_tol = 1e-2
+  nl_max_its = 100
 
   line_search = none
 
-  l_abs_tol = 1e-6
+  l_abs_tol = 1e-2
 []
 
 [AuxVariables]
@@ -151,91 +151,12 @@
     variable = normalized_power
     source_variable = kappa_fission_phi
     normalization = volume_integrated_power
-    normal_factor = 1.5e5
+    normal_factor = 1
     execute_on = TIMESTEP_END
   []
-  [layered_average]
-    type = SpatialUserObjectAux
-    variable = layered_average
-    execute_on = timestep_end
-    user_object = average_kappa_fission_phi_1
-  [../]
  []
 
 [UserObjects]
-# Computes layered averages axially of kappa sigma f
-  [integrate_kappa_fission_by_layer_1]
-    type = LayeredIntegral
-    direction = z
-    num_layers = 20
-    variable = normalized_power
-    execute_on = timestep_end
-    cumulative = true
-    positive_cumulative_direction = true
-    block = 1
-  []
-  [integrate_kappa_fission_by_layer_2]
-    type = LayeredIntegral
-    direction = z
-    num_layers = 20
-    variable = normalized_power
-    execute_on = timestep_end
-    cumulative = true
-    positive_cumulative_direction = true
-    block = 2
-  []
-  [integrate_kappa_fission_by_layer_3]
-    type = LayeredIntegral
-    direction = z
-    num_layers = 20
-    variable = normalized_power
-    execute_on = timestep_end
-    cumulative = true
-    positive_cumulative_direction = true
-    block = 3
-  []
-  [integrate_kappa_fission_by_layer_4]
-    type = LayeredIntegral
-    direction = z
-    num_layers = 20
-    variable = normalized_power
-    execute_on = timestep_end
-    cumulative = true
-    positive_cumulative_direction = true
-    block = 4
-  []
-  [./average_kappa_fission_phi_1]
-    type = LayeredAverage
-    variable = normalized_power
-    direction = z
-    num_layers = 20
-    sample_type = interpolate
-    block = 1
-  [../]
-  [./average_kappa_fission_phi_2]
-    type = LayeredAverage
-    variable = normalized_power
-    direction = z
-    num_layers = 20
-    sample_type = interpolate
-    block = 2
-  [../]
-   [./average_kappa_fission_phi_3]
-    type = LayeredAverage
-    variable = normalized_power
-    direction = z
-    num_layers = 20
-    sample_type = interpolate
-    block = 3
-  [../]
-    [./average_kappa_fission_phi_4]
-    type = LayeredAverage
-    variable = normalized_power
-    direction = z
-    num_layers = 20
-    sample_type = interpolate
-    block = 4
-  [../]
 []
 
 [Postprocessors]
@@ -254,51 +175,11 @@
 []
 
 [VectorPostprocessors]
-  [flux_sampler]
-    type = ElementValueSampler
-    variable = 'integrated_flux_fast integrated_flux_thermal'
-    sort_by = id
-    execute_on = 'TIMESTEP_END'
-  []
-# output axial power integral
-  [axial_power_out_1]
-    type = SpatialUserObjectVectorPostprocessor
-    userobject = integrate_kappa_fission_by_layer_1
-  []
-  [axial_power_out_2]
-    type = SpatialUserObjectVectorPostprocessor
-    userobject = integrate_kappa_fission_by_layer_2
-  []
-  [axial_power_out_3]
-    type = SpatialUserObjectVectorPostprocessor
-    userobject = integrate_kappa_fission_by_layer_3
-  []
-  [axial_power_out_4]
-    type = SpatialUserObjectVectorPostprocessor
-    userobject = integrate_kappa_fission_by_layer_4
-  []
   [./integral_out]
-    type = IntegralUserObject
-    userobject = integrate_kappa_fission_by_layer_1
-    userobject2 = average_kappa_fission_phi_1
-    r_i = 0.0939
-    r_o = 0.1071
-    k_clad = 123
-    k_fuel = 45
-    c_p_clad = 1
-    c_p_fuel = 1
-    c_p_coolant = 1254
-    h_cool = 32500
-    t_cool_in = 400
-    m_dot = 0.00731562520642246
-    n_rod = 6500
-    power = 15000000
-    E_d_E_r_Ratio = 0.9
-    reactor_height = 3.6
-  []
-  [kappa_fission_phi_layered_avg_1]
-    type = SpatialUserObjectVectorPostprocessor
-    userobject = average_kappa_fission_phi_1
+    type = ConstantVectorPostprocessor
+    vector_names = 'channel1 channel2 channel3 channel4'
+    value = '0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0'
+    outputs = true
   []
 []
 
@@ -332,7 +213,7 @@
      adf = " 1.010790e+00  1.003070e+00 "
      sigma_s = " 5.303440e-01  0 ;
                  1.748660e-02  1.355580e+00 "
-     block =  " 1 2 3 4 "
+     block =  " 1 1 1 1 "
      []
      [reflector]
      type = MultigroupXSMaterial
@@ -349,3 +230,68 @@
 []
 
 
+
+[MultiApps]
+  [sub_app]
+    type = TransientMultiApp
+    input_files = 'Multi_App_Pin1_Sub.i'
+    positions = '0   0   0
+                 10.71 0 0
+                 0 10.71 0
+                 10.71 10.71 0'
+    execute_on = timestep_end
+  []
+[]
+[Transfers]
+  [push_u]
+    type = MultiAppVariableValueSampleTransfer
+
+    multi_app = sub_app
+
+    # Transfer to the sub-app from this app
+    direction = to_multiapp
+
+    # The name of the variable in this app
+    source_variable = power_normalization
+    #source_variable = scalar_flux
+
+    # The name of the auxiliary variable in the sub-app
+    variable = normalized_power
+  []
+[vpp_from_vpp]
+  type = MultiAppReporterTransfer
+  to_reporters = 'channel1'
+  from_reporters = 'integral_out'
+  direction = from_multiapp
+  multi_app = sub_app
+  subapp_index = 0
+  execute_on = TIMESTEP_END
+  []
+[vpp_from_vpp]
+  type = MultiAppReporterTransfer
+  to_reporters = 'channel2'
+  from_reporters = 'integral_out'
+  direction = from_multiapp
+  multi_app = sub_app
+  subapp_index = 1
+  execute_on = TIMESTEP_END
+  []
+[vpp_from_vpp]
+  type = MultiAppReporterTransfer
+  to_reporters = 'channel3'
+  from_reporters = 'integral_out'
+  direction = from_multiapp
+  multi_app = sub_app
+  subapp_index = 2
+  execute_on = TIMESTEP_END
+  []
+[vpp_from_vpp]
+  type = MultiAppReporterTransfer
+  to_reporters = 'channel4'
+  from_reporters = 'integral_out'
+  direction = from_multiapp
+  multi_app = sub_app
+  subapp_index = 3
+  execute_on = TIMESTEP_END
+  []
+[]
