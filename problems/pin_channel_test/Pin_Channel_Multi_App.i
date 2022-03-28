@@ -5,10 +5,11 @@
     dx = '10.71 10.71'
     dy = '10.71 10.71'
     dz = '30 300 30'
-    ix = '3 3'
-    iy = '3 3'
+    ix = '2 2'
+    iy = '2 2'
     iz = '2 30 2'
-    subdomain_id = '99 99
+    subdomain_id = '
+	    99 99
             99 99
              1  1
              1  1
@@ -67,18 +68,6 @@
     boundary = '0 1 2 3 4 5'
     value = '0 0'
   []
-[]
-
-[Executioner]
-  type = Eigenvalue
-  solve_type = 'Newton'
-  free_power_iterations = 4
-  nl_abs_tol = 1e-2
-  nl_max_its = 100
-
-  line_search = none
-
-  l_abs_tol = 1e-2
 []
 
 [AuxVariables]
@@ -151,35 +140,36 @@
     variable = normalized_power
     source_variable = kappa_fission_phi
     normalization = volume_integrated_power
-    normal_factor = 1
+    normal_factor = 1.5e5
     execute_on = TIMESTEP_END
   []
  []
 
 [UserObjects]
+ [integrate_kappa_fission_by_layer]
+    type = LayeredIntegral
+    direction = z
+    num_layers = 20
+    variable = normalized_power
+    execute_on = timestep_end
+    cumulative = true
+    positive_cumulative_direction = true
+    block = 1
+  []
 []
 
 [Postprocessors]
-  [mem_per_process]
-    type = MemoryUsage
-    mem_units = megabytes
-    value_type = average
-    outputs = 'csv'
-  []
-  [perf_graph]
-    type = PerfGraphData
-    data_type = TOTAL
-    section_name = 'Root'
-    outputs = 'csv'
-  []
 []
 
 [VectorPostprocessors]
-  [./integral_out]
+  [integral_out]
     type = ConstantVectorPostprocessor
-    vector_names = 'channel1 channel2 channel3 channel4'
-    value = '0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0'
-    outputs = true
+    vector_names = 'channel1'
+    value = '0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0;'
+  []
+  [power_normalization_main_app]
+    type = SpatialUserObjectVectorPostprocessor
+    userobject = integrate_kappa_fission_by_layer
   []
 []
 
@@ -229,69 +219,76 @@
      []
 []
 
-
-
 [MultiApps]
   [sub_app]
-    type = TransientMultiApp
+    type = FullSolveMultiApp
     input_files = 'Multi_App_Pin1_Sub.i'
-    positions = '0   0   0
-                 10.71 0 0
-                 0 10.71 0
-                 10.71 10.71 0'
-    execute_on = timestep_end
+    positions = '0   0   0'
+    execute_on = TIMESTEP_END
   []
 []
+
 [Transfers]
   [push_u]
     type = MultiAppVariableValueSampleTransfer
 
     multi_app = sub_app
-
     # Transfer to the sub-app from this app
     direction = to_multiapp
 
     # The name of the variable in this app
-    source_variable = power_normalization
-    #source_variable = scalar_flux
+    source_variable = kappa_fission_phi
 
     # The name of the auxiliary variable in the sub-app
-    variable = normalized_power
+    variable = normalized_power1
+    execute_on = TIMESTEP_END
   []
-[vpp_from_vpp]
-  type = MultiAppReporterTransfer
-  to_reporters = 'channel1'
-  from_reporters = 'integral_out'
-  direction = from_multiapp
-  multi_app = sub_app
-  subapp_index = 0
-  execute_on = TIMESTEP_END
+  [vpp_from_vpp_0]
+    type = MultiAppReporterTransfer
+    to_reporters = 'integral_out/channel1'
+    from_reporters = 'integral_out/temperature_fuel'
+    direction = from_multiapp
+    multi_app = sub_app
+    subapp_index = 0
+    execute_on = FINAL
   []
-[vpp_from_vpp]
-  type = MultiAppReporterTransfer
-  to_reporters = 'channel2'
-  from_reporters = 'integral_out'
-  direction = from_multiapp
-  multi_app = sub_app
-  subapp_index = 1
-  execute_on = TIMESTEP_END
-  []
-[vpp_from_vpp]
-  type = MultiAppReporterTransfer
-  to_reporters = 'channel3'
-  from_reporters = 'integral_out'
-  direction = from_multiapp
-  multi_app = sub_app
-  subapp_index = 2
-  execute_on = TIMESTEP_END
-  []
-[vpp_from_vpp]
-  type = MultiAppReporterTransfer
-  to_reporters = 'channel4'
-  from_reporters = 'integral_out'
-  direction = from_multiapp
-  multi_app = sub_app
-  subapp_index = 3
-  execute_on = TIMESTEP_END
-  []
+  #[vpp_from_vpp_1]
+  #type = MultiAppReporterTransfer
+  #to_reporters = 'integral_out/channel2'
+  #from_reporters = 'integral_out/temperature_fuel'
+  #direction = from_multiapp
+  #multi_app = sub_app
+  #subapp_index = 1
+  #execute_on = TIMESTEP_END
+  #[]
+  #[vpp_from_vpp_2]
+  #type = MultiAppReporterTransfer
+  #to_reporters = 'integral_out/channel3'
+  #from_reporters = 'integral_out/temperature_fuel'
+  #direction = from_multiapp
+  #multi_app = sub_app
+  #subapp_index = 2
+  #execute_on = TIMESTEP_END
+  #[]
+  #[vpp_from_vpp_3]
+  #type = MultiAppReporterTransfer
+  #to_reporters = 'integral_out/channel4'
+  #from_reporters = 'integral_out/temperature_fuel'
+  #direction = from_multiapp
+  #multi_app = sub_app
+  #subapp_index = 3
+  #execute_on = TIMESTEP_END
+  #[]
+[]
+
+[Executioner]
+  type = Eigenvalue
+  solve_type = 'Newton'
+  free_power_iterations = 4
+  nl_abs_tol = 1e-4
+  nl_max_its = 1000
+
+  line_search = none
+
+  l_abs_tol = 1e-4
 []

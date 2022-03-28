@@ -5,12 +5,11 @@
     dx = '10.71'
     dy = '10.71'
     dz = '30 300 30'
-    ix = '10'
-    iy = '10'
+    ix = '1'
+    iy = '1'
     iz = '2 30 2'
-    subdomain_id = '
-            99
-             1   
+    subdomain_id = '99
+             1
             99'
   []
 []
@@ -34,20 +33,19 @@
 []
 
 [Executioner]
-  #type = Transient
-  #solve_type = 'Newton'
-  #free_power_iterations = 4
-  #nl_abs_tol = 1e-4
-  #nl_max_its = 100
+  type = Transient
+  solve_type = 'Newton'
+  free_power_iterations = 4
+  nl_abs_tol = 1e-2
+  nl_max_its = 100
 
-  #line_search = none
+  line_search = none
 
-  #l_abs_tol = 1e-4
-  type = Steady
+  l_abs_tol = 1e-3
 []
 
 [AuxVariables]
-  [normalized_power1]
+  [normalized_power]
     family = L2_LAGRANGE
     order = FIRST
   []
@@ -59,22 +57,23 @@
     type = LayeredIntegral
     direction = z
     num_layers = 20
-    variable = normalized_power1
-    execute_on = TIMESTEP_END
+    variable = normalized_power
+    execute_on = timestep_end
     cumulative = true
     positive_cumulative_direction = true
     block = 1
   []
   [./average_kappa_fission_phi_1]
     type = LayeredAverage
-    variable = normalized_power1
+    variable = normalized_power
     direction = z
     num_layers = 20
     sample_type = direct
     block = 1
-    execute_on = TIMESTEP_END
   [../]
 []
+
+
 
 [VectorPostprocessors]
   [./integral_out]
@@ -100,22 +99,25 @@
     type = SpatialUserObjectVectorPostprocessor
     userobject = average_kappa_fission_phi_1
   []
-  [./axial_power_out_1]
+  [axial_power_out_1]
     type = SpatialUserObjectVectorPostprocessor
     userobject = integrate_kappa_fission_by_layer_1
   []
-  #[./kappa_fission_phi_layered_avg_1]
-  #  type = SpatialUserObjectVectorPostprocessor
-  #  userobject = average_kappa_fission_phi_1
-  #[]
 []
 
 [AuxKernels]
 []
+
 [Outputs]
-  file_base = 'Multi_App_Sub_Output'
+  file_base = 'Old_Multi_App_Sub_Output'
   exodus = true
   csv = true
+  [pgraph]
+    type = PerfGraphOutput
+    execute_on = 'final'
+    level = 2
+    outputs = 'csv'
+  []
 []
 
 [Materials]
@@ -144,3 +146,4 @@
      block =  99 
      []
 []
+

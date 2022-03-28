@@ -10,14 +10,13 @@
     iz = '2 30 2'
     subdomain_id = '99 99
             99 99
-             1  2
-             3  4
+             1  1
+             1  1
             
             99 99
             99 99'
   []
 []
-
 [Variables]
   [scalar_flux]
     order = FIRST
@@ -25,7 +24,6 @@
     components = 2
   []
 []
-
 [Kernels]
   [diffusion]
     type = ArrayDiffusion
@@ -50,7 +48,6 @@
     extra_vector_tags = 'eigen'
   []
 []
-
 [DGKernels]
   [dgdiffusion]
     type = MultigroupDGDiffusion
@@ -59,7 +56,6 @@
     epsilon = 0
   []
 []
-
 [BCs]
   [VacuumBoundaries]
     type = ArrayPenaltyDirichletBC
@@ -68,19 +64,15 @@
     value = '0 0'
   []
 []
-
 [Executioner]
   type = Eigenvalue
   solve_type = 'Newton'
   free_power_iterations = 4
-  nl_abs_tol = 1e-5
-  nl_max_its = 1000
-
+  nl_abs_tol = 1e-2
+  nl_max_its = 100
   line_search = none
-
-  l_abs_tol = 1e-6
+  l_abs_tol = 1e-2
 []
-
 [AuxVariables]
 # copy array variable components
   [flux_fast]
@@ -114,7 +106,6 @@
     family = MONOMIAL
   [../]
 []
-
 [AuxKernels]
   [copy_flux_fast]
     type = ArrayVariableComponent
@@ -151,93 +142,12 @@
     variable = normalized_power
     source_variable = kappa_fission_phi
     normalization = volume_integrated_power
-    normal_factor = 1.5e5
+    normal_factor = 1e5
     execute_on = TIMESTEP_END
   []
-  [layered_average]
-    type = SpatialUserObjectAux
-    variable = layered_average
-    execute_on = timestep_end
-    user_object = average_kappa_fission_phi_1
-  [../]
  []
-
 [UserObjects]
-# Computes layered averages axially of kappa sigma f
-  [integrate_kappa_fission_by_layer_1]
-    type = LayeredIntegral
-    direction = z
-    num_layers = 20
-    variable = normalized_power
-    execute_on = timestep_end
-    cumulative = true
-    positive_cumulative_direction = true
-    block = 1
-  []
-  [integrate_kappa_fission_by_layer_2]
-    type = LayeredIntegral
-    direction = z
-    num_layers = 20
-    variable = normalized_power
-    execute_on = timestep_end
-    cumulative = true
-    positive_cumulative_direction = true
-    block = 2
-  []
-  [integrate_kappa_fission_by_layer_3]
-    type = LayeredIntegral
-    direction = z
-    num_layers = 20
-    variable = normalized_power
-    execute_on = timestep_end
-    cumulative = true
-    positive_cumulative_direction = true
-    block = 3
-  []
-  [integrate_kappa_fission_by_layer_4]
-    type = LayeredIntegral
-    direction = z
-    num_layers = 20
-    variable = normalized_power
-    execute_on = timestep_end
-    cumulative = true
-    positive_cumulative_direction = true
-    block = 4
-  []
-  [./average_kappa_fission_phi_1]
-    type = LayeredAverage
-    variable = normalized_power
-    direction = z
-    num_layers = 20
-    sample_type = interpolate
-    block = 1
-  [../]
-  [./average_kappa_fission_phi_2]
-    type = LayeredAverage
-    variable = normalized_power
-    direction = z
-    num_layers = 20
-    sample_type = interpolate
-    block = 2
-  [../]
-   [./average_kappa_fission_phi_3]
-    type = LayeredAverage
-    variable = normalized_power
-    direction = z
-    num_layers = 20
-    sample_type = interpolate
-    block = 3
-  [../]
-    [./average_kappa_fission_phi_4]
-    type = LayeredAverage
-    variable = normalized_power
-    direction = z
-    num_layers = 20
-    sample_type = interpolate
-    block = 4
-  [../]
 []
-
 [Postprocessors]
   [mem_per_process]
     type = MemoryUsage
@@ -251,12 +161,32 @@
     section_name = 'Root'
     outputs = 'csv'
   []
+[]
+[VectorPostprocessors]
+  [integral_out]
+    type = ConstantVectorPostprocessor
+    vector_names = 'channel1_fuel_temperature'
+    value = '0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0;'
+    execute_on = TIMESTEP_END
+  []
+[]
+[Postprocessors]
   [volume_integrated_power]
     type = ElementIntegralVariablePostprocessor
     variable = kappa_fission_phi
   []
 []
-
+[Outputs]
+  file_base = 'flux_sampler'
+  exodus = true
+  csv = true
+  [pgraph]
+    type = PerfGraphOutput
+    execute_on = 'final'
+    level = 2
+    outputs = 'csv'
+  []
+[]
 [Materials]
      [u42_0015]
      type = MultigroupXSMaterial
@@ -268,7 +198,7 @@
      adf = " 1.010790e+00  1.003070e+00 "
      sigma_s = " 5.303440e-01  0 ;
                  1.748660e-02  1.355580e+00 "
-     block =  " 1 2 3 4 "
+     block =  1
      []
      [reflector]
      type = MultigroupXSMaterial
@@ -283,68 +213,32 @@
      block =  99 
      []
 []
-
-[VectorPostprocessors]
-  [flux_sampler]
-    type = ElementValueSampler
-    variable = 'integrated_flux_fast integrated_flux_thermal'
-    sort_by = id
-    execute_on = 'TIMESTEP_END'
-  []
-# output axial power integral
-  [axial_power_out_1]
-    type = SpatialUserObjectVectorPostprocessor
-    userobject = integrate_kappa_fission_by_layer_1
-  []
-  [axial_power_out_2]
-    type = SpatialUserObjectVectorPostprocessor
-    userobject = integrate_kappa_fission_by_layer_2
-  []
-  [axial_power_out_3]
-    type = SpatialUserObjectVectorPostprocessor
-    userobject = integrate_kappa_fission_by_layer_3
-  []
-  [axial_power_out_4]
-    type = SpatialUserObjectVectorPostprocessor
-    userobject = integrate_kappa_fission_by_layer_4
-  []
-  [./integral_out]
-    type = IntegralUserObject
-    userobject = integrate_kappa_fission_by_layer_1
-    userobject2 = average_kappa_fission_phi_1
-    r_i = 0.0939
-    r_o = 0.1071
-    k_clad = 123
-    k_fuel = 45
-    c_p_clad = 1
-    c_p_fuel = 1
-    c_p_coolant = 1254
-    h_cool = 32500
-    t_cool_in = 400
-    m_dot = 0.00731562520642246
-    n_rod = 6500
-    power = 15000000
-    E_d_E_r_Ratio = 0.9
-    reactor_height = 3.6
-  []
-  [kappa_fission_phi_layered_avg_1]
-    type = SpatialUserObjectVectorPostprocessor
-    userobject = average_kappa_fission_phi_1
+[MultiApps]
+  [sub_app]
+    type = FullSolveMultiApp
+    input_files = 'New_Pin_Channel_Multi_App_Sub.i'
+    execute_on = TIMESTEP_END
   []
 []
-
-[Outputs]
-  file_base = 'flux_sampler'
-  exodus = true
-  csv = true
-  [pgraph]
-    type = PerfGraphOutput
-    execute_on = 'final'
-    level = 2
-    outputs = 'csv'
+[Transfers]
+  [push_u]  
+    type = MultiAppCopyTransfer
+    multi_app = sub_app
+    # Transfer to the sub-app from this app
+    direction = to_multiapp
+    # The name of the variable in this app
+    source_variable = normalized_power
+    # The name of the auxiliary variable in the sub-app
+    variable = aux_normalized_power
+    execute_on = TIMESTEP_END
+  []
+  [vpp_from_vpp_0]
+    type = MultiAppReporterTransfer
+    to_reporters = 'integral_out/channel1_fuel_temperature'
+    from_reporters = 'integral_out/temperature_fuel'
+    direction = from_multiapp
+    multi_app = sub_app
+    subapp_index = 0
+    execute_on = TIMESTEP_END
   []
 []
-
-
-
-
