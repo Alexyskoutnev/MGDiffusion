@@ -4,8 +4,8 @@
 
 class MultigroupFission;
 
-template<>
-InputParameters validParams<MultigroupFission>();
+// template<>
+// InputParameters validParams<MultigroupFission>();
 
 class MultigroupFission : public ArrayKernel
 {

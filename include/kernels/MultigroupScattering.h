@@ -4,8 +4,8 @@
 
 class MultigroupScattering;
 
-template<>
-InputParameters validParams<MultigroupScattering>();
+// template<>
+// InputParameters validParams<MultigroupScattering>();
 
 class MultigroupScattering : public ArrayKernel
 {

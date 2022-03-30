@@ -4,8 +4,8 @@
 
 class MultigroupAbsorption;
 
-template<>
-InputParameters validParams<MultigroupAbsorption>();
+// template<>
+// InputParameters validParams<MultigroupAbsorption>();
 
 class MultigroupAbsorption : public ArrayKernel
 {

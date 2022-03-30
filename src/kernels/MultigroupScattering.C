@@ -1,7 +1,7 @@
 #include "MultigroupScattering.h"
 
 registerMooseObject("MGDiffusionApp",MultigroupScattering);
-defineLegacyParams(MultigroupScattering);
+// defineLegacyParams(MultigroupScattering);
 
 InputParameters
 MultigroupScattering::validParams()

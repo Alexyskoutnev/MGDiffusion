@@ -4,8 +4,8 @@
 
 class ReactionRateAux;
 
-template <>
-InputParameters validParams<ReactionRateAux>();
+// template <>
+// InputParameters validParams<ReactionRateAux>();
 
 /**
  * Auxiliary kernel responsible for computing reaction rates for an array scalar flux variable and array material property for cross-sections.

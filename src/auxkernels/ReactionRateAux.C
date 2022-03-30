@@ -3,7 +3,7 @@
 
 registerMooseObject("MooseApp", ReactionRateAux);
 
-defineLegacyParams(ReactionRateAux);
+// defineLegacyParams(ReactionRateAux);
 
 InputParameters
 ReactionRateAux::validParams()

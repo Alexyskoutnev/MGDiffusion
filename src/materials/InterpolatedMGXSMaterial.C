@@ -1,6 +1,6 @@
 #include "InterpolatedMGXSMaterial.h"
-registerMooseObject("MGDiffusionApp",InterpolatedMGXSMaterial);
-defineLegacyParams(InterpolatedMGXSMaterial);
+registerMooseObject("MGDiffusionApp", InterpolatedMGXSMaterial);
+// defineLegacyParams(InterpolatedMGXSMaterial);
 
 InputParameters
 InterpolatedMGXSMaterial::validParams()

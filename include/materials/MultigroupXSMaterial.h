@@ -4,8 +4,8 @@
 
 class MultigroupXSMaterial;
 
-template<>
-InputParameters validParams<MultigroupXSMaterial>();
+// template<>
+// InputParameters validParams<MultigroupXSMaterial>();
 
 class MultigroupXSMaterial : public Material
 {

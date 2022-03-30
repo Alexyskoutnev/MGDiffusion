@@ -15,8 +15,8 @@
 
 class InterpolatedMGXSMaterial;
 
-template<>
-InputParameters validParams<InterpolatedMGXSMaterial>();
+// template<>
+// InputParameters validParams<InterpolatedMGXSMaterial>();
 
 class InterpolatedMGXSMaterial : public Material
 {

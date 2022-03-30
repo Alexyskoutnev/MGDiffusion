@@ -1,7 +1,7 @@
 #include "MultigroupXSMaterial.h"
 
 registerMooseObject("MGDiffusionApp",MultigroupXSMaterial);
-defineLegacyParams(MultigroupXSMaterial);
+// defineLegacyParams(MultigroupXSMaterial);
 
 InputParameters
 MultigroupXSMaterial::validParams()

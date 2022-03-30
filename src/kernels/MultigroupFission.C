@@ -1,7 +1,7 @@
 #include "MultigroupFission.h"
 
 registerMooseObject("MGDiffusionApp",MultigroupFission);
-defineLegacyParams(MultigroupFission);
+// defineLegacyParams(MultigroupFission);
 
 InputParameters
 MultigroupFission::validParams()

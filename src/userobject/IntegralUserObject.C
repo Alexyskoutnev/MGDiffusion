@@ -6,7 +6,7 @@
 using namespace std;
 
 
-std::vector<VectorPostprocessorValue> get_tempaerature_data(VectorPostprocessorValue & q_triple_prime_array_integral, VectorPostprocessorValue & q_triple_prime_array, double r_i, double r_o, double k_clad, double k_fuel, double cp_clad, double cp_fuel, double cp_coolant, double h_cool, double t_cool_in, double m_dot, double n_rod, double power, double E_d_E_r_Ratio, double reactor_height){
+std::vector<VectorPostprocessorValue> get_temperature_data(VectorPostprocessorValue & q_triple_prime_array_integral, VectorPostprocessorValue & q_triple_prime_array, double r_i, double r_o, double k_clad, double k_fuel, double cp_clad, double cp_fuel, double cp_coolant, double h_cool, double t_cool_in, double m_dot, double n_rod, double power, double E_d_E_r_Ratio, double reactor_height){
     double mass_flow_rate = m_dot;
     double temp_base0 = t_cool_in;
     double r_ci = r_i;
@@ -74,16 +74,16 @@ double temp_f(double temp_ci, double r_ci, double k_f, double q_triple_prime, in
 
 registerMooseObject("MGDiffusionApp", IntegralUserObject);
 
-defineLegacyParams(IntegralUserObject);
+// defineLegacyParams(IntegralUserObject);
 
 InputParameters
 IntegralUserObject::validParams()
 {
   InputParameters params = GeneralVectorPostprocessor::validParams();
 
-  params.addRequiredParam<UserObjectName>("userobject",
+  params.addRequiredParam<UserObjectName>("intergated_temperature_uo",
                                           "The userobject whose values hold the cummulative temperature values");
-  params.addRequiredParam<UserObjectName>("userobject2",
+  params.addRequiredParam<UserObjectName>("temperatures_uo",
                                           "The userobject whose values hold the cummulative temperature values");
   // params.addRequiredCoupledVar("kappa_fission_phi", "q_triple_prime");
   params.addRequiredParam<double>("r_i","inner clad radius");
@@ -117,8 +117,8 @@ IntegralUserObject::IntegralUserObject(
     _uo_vec2(declareVector("temperature_clad_outer")),
     _uo_vec3(declareVector("temperature_clad_inner")),
     _uo_vec4(declareVector("temperature_fuel")),
-    _integral_uo(getUserObject<UserObject>("userobject")),
-    _spatial_uo(getUserObject<UserObject>("userobject2")),
+    _integral_uo(getUserObject<UserObject>("intergated_temperature_uo")),
+    _spatial_uo(getUserObject<UserObject>("temperatures_uo")),
     _r_i(getParam<double>("r_i")),
     _r_o(getParam<double>("r_o")),
     _k_clad(getParam<double>("k_clad")),
@@ -164,7 +164,7 @@ IntegralUserObject::execute()
     _uo_vec1.push_back(_spatial_uo.spatialValue(pt));
   }
   vector<VectorPostprocessorValue> data_holder;
-  data_holder = get_tempaerature_data(_uo_vec, _uo_vec1, _r_i, _r_o, _k_clad, _k_fuel, _c_p_fuel, _c_p_fuel, _c_p_coolant, _h_cool, _t_cool_in, _m_dot, _n_rod, _power, _E_d_E_r_Ratio, _reactor_height);
+  data_holder = get_temperature_data(_uo_vec, _uo_vec1, _r_i, _r_o, _k_clad, _k_fuel, _c_p_fuel, _c_p_fuel, _c_p_coolant, _h_cool, _t_cool_in, _m_dot, _n_rod, _power, _E_d_E_r_Ratio, _reactor_height);
   _uo_vec.clear();
   for (const auto val : data_holder){
     _uo_vec.push_back(val[0]);

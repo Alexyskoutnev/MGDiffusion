@@ -4,8 +4,8 @@
 
 class MultigroupDGDiffusion;
 
-template <>
-InputParameters validParams<MultigroupDGDiffusion>();
+// template <>
+// InputParameters validParams<MultigroupDGDiffusion>();
 
 /**
  * Array version of DGDiffusion

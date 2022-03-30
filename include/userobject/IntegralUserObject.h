@@ -13,8 +13,8 @@
 
 class IntegralUserObject;
 
-template <>
-InputParameters validParams<IntegralUserObject>();
+// template <>
+// InputParameters validParams<IntegralUserObject>();
 
 /**
  *  SpatialUserObjectVectorPostprocessor is a type of VectorPostprocessor that outputs the
@@ -60,8 +60,6 @@ protected:
   VectorPostprocessorValue & _uo_vec3;
   VectorPostprocessorValue & _uo_vec4;
 
-  
-  // VectorPostprocessorValue & _uo_vec;
 
   /// Userobject to evaluate spatially
   const UserObject & _integral_uo;
@@ -94,7 +92,7 @@ protected:
 };
 
 
-std::vector<VectorPostprocessorValue> get_tempaerature_data(VectorPostprocessorValue &, VectorPostprocessorValue &, double, double, double, double, double, double, double, double, double, double, double, double, double, double);
+std::vector<VectorPostprocessorValue> get_temperature_data(VectorPostprocessorValue &, VectorPostprocessorValue &, double, double, double, double, double, double, double, double, double, double, double, double, double, double);
 
 double temp_coolant(double, double, double, double, VectorPostprocessorValue &, int);
 

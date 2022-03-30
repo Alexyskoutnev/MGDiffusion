@@ -7,7 +7,7 @@
 
 registerMooseObject("MooseApp", MultigroupDGDiffusion);
 
-defineLegacyParams(MultigroupDGDiffusion);
+// defineLegacyParams(MultigroupDGDiffusion);
 
 InputParameters
 MultigroupDGDiffusion::validParams()

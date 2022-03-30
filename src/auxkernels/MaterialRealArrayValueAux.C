@@ -5,7 +5,7 @@
 registerMooseObject("MooseApp", MaterialRealArrayValueAux);
 registerMooseObject("MooseApp", ADMaterialRealArrayValueAux);
 
-defineLegacyParams(MaterialRealArrayValueAux);
+// defineLegacyParams(MaterialRealArrayValueAux);
 
 template <bool is_ad>
 InputParameters

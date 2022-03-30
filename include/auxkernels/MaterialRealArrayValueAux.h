@@ -13,8 +13,8 @@ class MaterialRealArrayValueAuxTempl;
 typedef MaterialRealArrayValueAuxTempl<false> MaterialRealArrayValueAux;
 typedef MaterialRealArrayValueAuxTempl<true> ADMaterialRealArrayValueAux;
 
-template <>
-InputParameters validParams<MaterialRealArrayValueAux>();
+// template <>
+// InputParameters validParams<MaterialRealArrayValueAux>();
 
 /**
  * AuxKernel for outputting a RealEigenVector material property component to an AuxVariable

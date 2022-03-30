@@ -46,6 +46,7 @@
     order = FIRST
   []
 []
+
 [AuxKernels]
  # [compute_kappa_fission_phi]
  #   type = ReactionRateAux
