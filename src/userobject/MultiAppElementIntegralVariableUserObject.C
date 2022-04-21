@@ -8,16 +8,18 @@
 //* https://www.gnu.org/licenses/lgpl-2.1.html
 
 #include "MultiAppElementIntegralVariableUserObject.h"
+#include "MultiAppUserObjectProvider.h"
 
 registerMooseObject("MooseApp", MultiAppElementIntegralVariableUserObject);
 
 InputParameters
 MultiAppElementIntegralVariableUserObject::validParams()
 {
-  InputParameters params = MultiAppElementIntegralVariableUserObject::validParams();
+  InputParameters params = ElementIntegralUserObject::validParams();
   params.addClassDescription("computes a volume integral of a variable.");
-  params.addRequiredCoupledVar("variable", "The name of the variable that this object operates on");
-  params.addRequiredParam<MultiAppName>("multi_app", "The name of the multiapp that the user object interacts with");
+  std::cout << "MultiAppElement ValidParams" << std::endl;
+  params.addRequiredParam<std::vector<VariableName>>("variable", "The name of the variable that this object operates on");
+  // params.addRequiredParam<MultiAppName>("multi_app", "The name of the multiapp that the user object interacts with");
   return params;
 }
 

@@ -14,6 +14,14 @@
 #include "FEProblemBase.h"
 #include "MooseObject.h"
 
+//Transfer.h 
+#include "Transfer.h"
+#include "MultiMooseEnum.h"
+
+#include "libmesh/bounding_box.h"
+
+class MooseMesh;
+class MultiApp;
 // Forward declarations
 class Assembly;
 class MooseObject;

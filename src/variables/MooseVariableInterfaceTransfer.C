@@ -30,10 +30,13 @@ MooseVariableInterfaceTransfer<T>::MooseVariableInterfaceTransfer(const MooseObj
                                                   Moose::VarFieldType expected_var_field_type)        
   : _nodal(nodal), _moose_object(*moose_object)
 {
+  // FEProblemBase * master/_problem = nullptr;
   std::cout << "START" << std::endl;
   const InputParameters & parameters = _moose_object.parameters();
   THREAD_ID tid = parameters.get<THREAD_ID>("_tid");
+  std::cout << "VAR START" << std::endl;
   std::string variable_name = parameters.getMooseType(var_param_name);
+  std::cout << "VAR START 1" << std::endl;
   // _fe_problem = *getCheckedPointerParam<FEProblemBase *>("_fe_problem_base");
   _fe_problem = _moose_object.getCheckedPointerParam<FEProblemBase *>("_fe_problem_base");
   _multi_app = _fe_problem->getMultiApp(_moose_object.getParam<MultiAppName>("multi_app"));

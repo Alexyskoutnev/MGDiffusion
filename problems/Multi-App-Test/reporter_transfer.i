@@ -24,6 +24,7 @@
     components = 2
   []
 []
+
 [Kernels]
   [diffusion]
     type = ArrayDiffusion
@@ -64,6 +65,7 @@
     value = '0 0'
   []
 []
+
 [Executioner]
   type = Eigenvalue
   solve_type = 'Newton'
@@ -73,6 +75,7 @@
   line_search = none
   l_abs_tol = 1e-2
 []
+
 [AuxVariables]
 # copy array variable components
   [flux_fast]
@@ -106,6 +109,7 @@
     family = MONOMIAL
   [../]
 []
+
 [AuxKernels]
   [copy_flux_fast]
     type = ArrayVariableComponent
@@ -145,9 +149,11 @@
     normal_factor = 1e5
     execute_on = TIMESTEP_END
   []
- []
+[]
+
 [UserObjects]
 []
+
 [Postprocessors]
   [mem_per_process]
     type = MemoryUsage
@@ -162,6 +168,7 @@
     outputs = 'csv'
   []
 []
+
 [VectorPostprocessors]
   [integral_out]
     type = ConstantVectorPostprocessor
@@ -176,6 +183,7 @@
     variable = kappa_fission_phi
   []
 []
+
 [Outputs]
   file_base = 'flux_sampler'
   exodus = true
@@ -187,6 +195,7 @@
     outputs = 'csv'
   []
 []
+
 [Materials]
      [u42_0015]
      type = MultigroupXSMaterial
@@ -213,10 +222,22 @@
      block =  99 
      []
 []
+
+[Transfers]
+  [transferpointer]
+  type = MultiAppVariablePointerTransfer
+  multi_app = multiapp
+  variable = normalized_power
+  user_object_type = LayeredIntegral
+  user_object_name = integrate_kappa_fission_by_layer_1
+  direction = "FROM_MULTIAPP"
+  []
+[]
+
 [MultiApps]
-  [sub_app]
+  [multiapp]
     type = FullSolveMultiApp
-    input_files = 'New_Pin_Channel_Multi_App_Sub.i'
+    input_files = 'reporter_test_sub.i'
     execute_on = TIMESTEP_END
   []
 []

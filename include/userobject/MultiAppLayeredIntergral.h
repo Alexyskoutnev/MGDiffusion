@@ -10,14 +10,18 @@
 #pragma once
 
 // MOOSE includes
-#include "MultiAppElementIntegralVariableUserObject.h"
+#include "ElementIntegralVariableUserObject.h"
 #include "LayeredBase.h"
+#include "FEProblemBase.h"
+#include "MultiApp.h"
+#include "MooseVariableFieldBase.h"
+
 
 /**
  * This UserObject computes volume integrals of a variable storing partial sums for the specified
  * number of intervals in a direction (x,y,z).
  */
-class MultiAppLayeredIntergral : public MultiAppElementIntegralVariableUserObject, public LayeredBase
+class MultiAppLayeredIntergral : public ElementIntegralVariableUserObject, public LayeredBase
 {
 public:
   static InputParameters validParams();
@@ -37,4 +41,7 @@ public:
   virtual void execute() override;
   virtual void finalize() override;
   virtual void threadJoin(const UserObject & y) override;
+  void setVarPointer(MooseVariableFieldBase & ptr);
+protected:
+  // const MooseVariableFieldBase & _multi_app_var;
 };

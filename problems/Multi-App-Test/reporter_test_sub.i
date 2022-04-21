@@ -97,57 +97,27 @@
 []
 
 
+
 [UserObjects]
-# Computes layered averages axially of kappa sigma f
-#  [integrate_kappa_fission_by_layer_1]
-#    type = MultiAppElementIntegralVariableUserObject
-#    direction = z
-#    num_layers = 20
-#    variable = normalized_power
-#    execute_on = timestep_end
-#    cumulative = true
-#    positive_cumulative_direction = true
-#    multi_app = multi_app
-#    block = 1
-#  []
-  [integrate_kappa_fission_by_layer_1]
-    type = MultiAppLayeredIntergral
-    variable = normalized_power
+  [./integrate_kappa_fission_by_layer_1]
+    type = LayeredIntegral
     direction = z
     num_layers = 20
-    cumulative = true
-    multi_app = sub_app
+    variable = aux_normalized_power
     execute_on = timestep_end
+    cumulative = true
+    positive_cumulative_direction = true
     block = 1
-  [../]
+  []
+#  [integrate_kappa_fission_by_layer_1]
+#    type = MultiAppLayeredIntergral
+#    variable = normalized_power
+#    direction = z
+#    num_layers = 20
+#    cumulative = true
+#    multi_app = multiapp
+#    execute_on = timestep_end
+#    block = 1
+#  [../]
 []
 
-[VectorPostprocessors]
-  [./integral_out]
-    type = IntegralUserObject
-    intergated_temperature_uo = integrate_kappa_fission_by_layer_1
-    temperatures_uo = average_kappa_fission_phi_1
-    r_i = 0.0939
-    r_o = 0.1071
-    k_clad = 123
-    k_fuel = 45
-    c_p_clad = 1
-    c_p_fuel = 1
-    c_p_coolant = 1254
-    h_cool = 32500
-    t_cool_in = 400
-    m_dot = 0.00731562520642246
-    n_rod = 6500
-    power = 15000000
-    E_d_E_r_Ratio = 0.9
-    reactor_height = 3.6
-  []
-  [./kappa_fission_phi_layered_avg_1]
-    type = SpatialUserObjectVectorPostprocessor
-    userobject = average_kappa_fission_phi_1
-  []
-  [axial_power_out_1]
-    type = SpatialUserObjectVectorPostprocessor
-    userobject = integrate_kappa_fission_by_layer_1
-  []
-[]

@@ -8,6 +8,10 @@
 //* https://www.gnu.org/licenses/lgpl-2.1.html
 
 #include "MultiAppLayeredIntergral.h"
+#include "FEProblemBase.h"
+#include "MultiApp.h"
+#include "MooseVariableFEBase.h"
+
 
 #include "libmesh/mesh_tools.h"
 
@@ -16,7 +20,7 @@ registerMooseObject("MooseApp", MultiAppLayeredIntergral);
 InputParameters
 MultiAppLayeredIntergral::validParams()
 {
-  InputParameters params = MultiAppElementIntegralVariableUserObject::validParams();
+  InputParameters params = ElementIntegralVariableUserObject::validParams();
   params += LayeredBase::validParams();
   params.addClassDescription("Compute variable integrals over layers.");
 
@@ -24,7 +28,7 @@ MultiAppLayeredIntergral::validParams()
 }
 
 MultiAppLayeredIntergral::MultiAppLayeredIntergral(const InputParameters & parameters)
-  : MultiAppElementIntegralVariableUserObject(parameters), LayeredBase(parameters)
+  : ElementIntegralVariableUserObject(parameters), LayeredBase(parameters)
 {
   std::cout << "Start MultiAppLayeredIntergral" << std::endl;
 }
@@ -32,7 +36,7 @@ MultiAppLayeredIntergral::MultiAppLayeredIntergral(const InputParameters & param
 void
 MultiAppLayeredIntergral::initialize()
 {
-  MultiAppElementIntegralVariableUserObject::initialize();
+  ElementIntegralVariableUserObject::initialize();
   LayeredBase::initialize();
 }
 
@@ -55,7 +59,7 @@ MultiAppLayeredIntergral::finalize()
 void
 MultiAppLayeredIntergral::threadJoin(const UserObject & y)
 {
-  MultiAppElementIntegralVariableUserObject::threadJoin(y);
+  ElementIntegralVariableUserObject::threadJoin(y);
   LayeredBase::threadJoin(y);
 }
 
@@ -73,3 +77,8 @@ MultiAppLayeredIntergral::spatialPoints() const
 
   return points;
 }
+
+// void 
+// MultiAppLayeredIntergral::setVarPointer(MooseVariableFieldBase * ptr){
+//   _multi_app_var = ptr;
+// }
