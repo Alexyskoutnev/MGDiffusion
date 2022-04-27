@@ -41,7 +41,7 @@ public:
   virtual void execute() override;
   virtual void finalize() override;
   virtual void threadJoin(const UserObject & y) override;
-  void setVarPointer(MooseVariableFieldBase & ptr);
+  // void setVarPointer(MooseVariableFieldBase * ptr);
 protected:
   // const MooseVariableFieldBase & _multi_app_var;
 };

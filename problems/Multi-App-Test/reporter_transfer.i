@@ -228,7 +228,6 @@
   type = MultiAppVariablePointerTransfer
   multi_app = multiapp
   variable = normalized_power
-  user_object_type = LayeredIntegral
   user_object_name = integrate_kappa_fission_by_layer_1
   direction = "FROM_MULTIAPP"
   []

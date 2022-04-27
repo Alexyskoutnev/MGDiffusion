@@ -1,6 +1,6 @@
 #include "MultigroupAbsorption.h"
 
-registerMooseObject("MGDiffusionApp",MultigroupAbsorption);
+registerMooseObject("MGDiffusionApp", MultigroupAbsorption);
 // defineLegacyParams(MultigroupAbsorption);
 
 InputParameters

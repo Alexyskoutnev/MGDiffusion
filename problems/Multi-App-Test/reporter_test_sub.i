@@ -99,8 +99,19 @@
 
 
 [UserObjects]
-  [./integrate_kappa_fission_by_layer_1]
+  [test]
     type = LayeredIntegral
+    direction = z
+    num_layers = 20
+    variable = aux_normalized_power
+    execute_on = timestep_end
+    cumulative = true
+    positive_cumulative_direction = true
+    block = 1
+
+  []
+  [integrate_kappa_fission_by_layer_1]
+    type = MultiAppLayeredIntergral
     direction = z
     num_layers = 20
     variable = aux_normalized_power
