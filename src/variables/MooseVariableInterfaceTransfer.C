@@ -1,12 +1,3 @@
-//* This file is part of the MOOSE framework
-//* https://www.mooseframework.org
-//*s
-//* All rights reserved, see COPYRIGHT for full restrictions
-//* https://github.com/idaholab/moose/blob/master/COPYRIGHT
-//*
-//* Licensed under LGPL 2.1, please see LICENSE for details
-//* https://www.gnu.org/licenses/lgpl-2.1.html
-
 #include "MooseVariableInterfaceTransfer.h"
 
 #include "Assembly.h"
@@ -30,35 +21,16 @@ MooseVariableInterfaceTransfer<T>::MooseVariableInterfaceTransfer(const MooseObj
                                                   Moose::VarFieldType expected_var_field_type)        
   : _nodal(nodal), _moose_object(*moose_object)
 {
-  // FEProblemBase * master/_problem = nullptr;
-  std::cout << "START" << std::endl;
   const InputParameters & parameters = _moose_object.parameters();
   THREAD_ID tid = parameters.get<THREAD_ID>("_tid");
-  std::cout << "VAR START" << std::endl;
   std::string variable_name = parameters.getMooseType(var_param_name);
-  std::cout << "VAR START 1" << std::endl;
-  // _fe_problem = *getCheckedPointerParam<FEProblemBase *>("_fe_problem_base");
   _fe_problem = _moose_object.getCheckedPointerParam<FEProblemBase *>("_fe_problem_base");
   _multi_app = _fe_problem->getMultiApp(_moose_object.getParam<MultiAppName>("multi_app"));
   FEProblemBase & master_problem = _multi_app->problemBase();
-  // _var = master_problem.getVariable(tid, parameters.get<VariableName>("variable"));
-  
 
-
-  // SubProblem & problem = *parameters.getCheckedPointerParam<SubProblem *>("_problem");
-
-  
-
-  // Try the scalar version first
-  
   if (variable_name == "")
   {
     auto vec = parameters.getVecMooseType(var_param_name);
-
-    // Catch the (very unlikely) case where a user specifies
-    // variable = '' (the empty string)
-    // in their input file. This could happen if e.g. something goes
-    // wrong with dollar bracket expression expansion.
     if (vec.empty())
       mooseError("Error constructing object '",
                  _moose_object.name(),
@@ -67,19 +39,12 @@ MooseVariableInterfaceTransfer<T>::MooseVariableInterfaceTransfer(const MooseObj
                  "' parameter! Did you set ",
                  var_param_name,
                  " = '' (empty string) by accident?");
-
-    // When using vector variables, we are only going to use the first one in the list at the
-    // interface level...
     variable_name = vec[0];
   }
-
-  // _var = &problem.getVariable(tid, variable_name, expected_var_type, expected_var_field_type);
   std::cout << "Variable name: " << variable_name << std::endl;
   _var = &master_problem.getVariable(tid, variable_name, expected_var_type, expected_var_field_type);
   if (!(_variable = dynamic_cast<MooseVariableFE<T> *>(_var)))
     _fv_variable = dynamic_cast<MooseVariableFV<T> *>(_var);
-  
-
   _mvi_assembly = &master_problem.assembly(tid);
 }
 

@@ -17,168 +17,50 @@
             99 99'
   []
 []
-
-[BCs]
-  [VacuumBoundaries]
-    type = ArrayPenaltyDirichletBC
-    variable = scalar_flux
-    boundary = '0 1 2 3 4 5'
-    value = '0 0'
-  []
-[]
-
 [Variables]
-  [temperature]
+  [./v]
     order = FIRST
     family = L2_LAGRANGE
-    components = 2
   []
-  
 []
-
 [Kernels]
-  [diffusion]
-    type = Diffusion
-    variable = temperature
-  []
-  [absorption]
-    type = MultigroupAbsorption
-    variable = scalar_flux
-    sigma_t = sigma_t
-  []
-  [scattering]
-    type = MultigroupScattering
-    variable = scalar_flux
-    sigma_s = sigma_s
-  []
-  [fission]
-    type = MultigroupFission
-    variable = scalar_flux
-    nu_sigma_f = nu_sigma_f
-    chi = chi
-    extra_vector_tags = 'eigen'
+   [dummy_calulation]
+    type = NullKernel
+    variable = v
   []
 []
-
-[DGKernels]
-  [dgdiffusion]
-    type = MultigroupDGDiffusion
-    variable = scalar_flux
-    use_adf = true
-    epsilon = 0
-  []
+[BCs]
 []
-
 [Executioner]
-  type = Transient
-  
-  solve_type = 'PJFNK'
-
-  petsc_options_iname = '-pc_type -pc_hypre_type'
-  petsc_options_value = 'hypre boomeramg'
+  type = Steady
+  solve_type = 'Newton'
   free_power_iterations = 4
-  nl_abs_tol = 1e-5
-  nl_max_its = 1000
-
+  nl_abs_tol = 1e-2
+  nl_max_its = 100
   line_search = none
-
-  l_abs_tol = 1e-6
+  l_abs_tol = 1e-3
 []
-
+[AuxVariables]
+  [aux_normalized_power]
+    family = L2_LAGRANGE
+    order = FIRST
+  []
+[]
 
 [AuxKernels]
-  [power_normalization]
-    type = NormalizationAux
-    variable = normalized_power
-    source_variable = kappa_fission_phi
-    normalization = volume_integrated_power
-    normal_factor = 1
-    execute_on = TIMESTEP_END
-  []
-  [layered_average]
-    type = SpatialUserObjectAux
-    variable = layered_average
-    execute_on = timestep_end
-    user_object = average_kappa_fission_phi_1
-  [../]
- []
-
- [AuxVariables]
-# store reaction rate (fission power)
-  [kappa_fission_phi]
-    family = L2_LAGRANGE
-    order = FIRST
-  []
-   [layered_average]
-    order = CONSTANT
-    family = MONOMIAL
-  [../]
+ # [compute_kappa_fission_phi]
+ #   type = ReactionRateAux
+ #   variable = kappa_fission_phi
+ #   scalar_flux_variable = scalar_flux
+ #   cross_section = kappa_sigma_f
+ # []
 []
-
-
-[UserObjects]
-# Computes layered averages axially of kappa sigma f
-  [integrate_kappa_fission_by_layer_1]
-    type = LayeredIntegral
-    direction = z
-    num_layers = 20
-    variable = normalized_power
-    execute_on = timestep_end
-    cumulative = true
-    positive_cumulative_direction = true
-    block = 1
-  []
-  [./average_kappa_fission_phi_1]
-    type = LayeredAverage
-    variable = normalized_power
-    direction = z
-    num_layers = 20
-    sample_type = interpolate
-    block = 1
-  [../]
-[]
-
-[VectorPostprocessors]
-# output axial power integral
-  [axial_power_out_1]
-    type = SpatialUserObjectVectorPostprocessor
-    userobject = integrate_kappa_fission_by_layer_1
-  []
-  [./integral_out]
-    type = IntegralUserObject
-    userobject = integrate_kappa_fission_by_layer_1
-    userobject2 = average_kappa_fission_phi_1
-    r_i = 0.0939
-    r_o = 0.1071
-    k_clad = 123
-    k_fuel = 45
-    c_p_clad = 1
-    c_p_fuel = 1
-    c_p_coolant = 1254
-    h_cool = 32500
-    t_cool_in = 400
-    m_dot = 0.00731562520642246
-    n_rod = 6500
-    power = 15000000
-    E_d_E_r_Ratio = 0.9
-    reactor_height = 3.6
-  []
-  [kappa_fission_phi_layered_avg_1]
-    type = SpatialUserObjectVectorPostprocessor
-    userobject = average_kappa_fission_phi_1
-  []
-[]
-
-[Postprocessors]
-  [volume_integrated_power]
-    type = ElementIntegralVariablePostprocessor
-    variable = kappa_fission_phi
-  []
-[]
-
 [Outputs]
-  file_base = 'multi_app'
-  exodus = true
+  file_base = 'New_Multi_App_Sub_Output'
+  [exo]
+    type = Exodus 
+    execute_on = "timestep_begin"
+  []
   csv = true
   [pgraph]
     type = PerfGraphOutput
@@ -187,7 +69,6 @@
     outputs = 'csv'
   []
 []
-
 [Materials]
      [u42_0015]
      type = MultigroupXSMaterial
@@ -214,3 +95,29 @@
      block =  99 
      []
 []
+
+
+
+[UserObjects]
+  [integrate_kappa_fission_by_layer_1]
+    type = MutliAppLayeredIntegral
+    direction = z
+    num_layers = 20
+    variable = aux_normalized_power
+    execute_on = FINAL
+    cumulative = true
+    positive_cumulative_direction = true
+    block = 1
+  []
+#  [integrate_kappa_fission_by_layer_1]
+#    type = MultiAppLayeredIntergral
+#    variable = normalized_power
+#    direction = z
+#    num_layers = 20
+#    cumulative = true
+#    multi_app = multiapp
+#    execute_on = timestep_end
+#    block = 1
+#  [../]
+[]
+

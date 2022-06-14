@@ -1,3 +1,4 @@
+
 #include "IntegralUserObject.h"
 #include "DelimitedFileReader.h"
 #include "UserObjectInterface.h"
@@ -74,8 +75,6 @@ double temp_f(double temp_ci, double r_ci, double k_f, double q_triple_prime, in
 
 registerMooseObject("MGDiffusionApp", IntegralUserObject);
 
-// defineLegacyParams(IntegralUserObject);
-
 InputParameters
 IntegralUserObject::validParams()
 {
@@ -85,7 +84,6 @@ IntegralUserObject::validParams()
                                           "The userobject whose values hold the cummulative temperature values");
   params.addRequiredParam<UserObjectName>("temperatures_uo",
                                           "The userobject whose values hold the cummulative temperature values");
-  // params.addRequiredCoupledVar("kappa_fission_phi", "q_triple_prime");
   params.addRequiredParam<double>("r_i","inner clad radius");
   params.addRequiredParam<double>("r_o","outer clad radius");
   params.addRequiredParam<double>("k_clad","outer clad radius");

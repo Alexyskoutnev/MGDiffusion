@@ -1,13 +1,4 @@
-//* This file is part of the MOOSE framework
-//* https://www.mooseframework.org
-//*
-//* All rights reserved, see COPYRIGHT for full restrictions
-//* https://github.com/idaholab/moose/blob/master/COPYRIGHT
-//*
-//* Licensed under LGPL 2.1, please see LICENSE for details
-//* https://www.gnu.org/licenses/lgpl-2.1.html
-
-#include "MultiAppLayeredIntergral.h"
+#include "MultiAppLayeredIntegral.h"
 #include "FEProblemBase.h"
 #include "MultiApp.h"
 #include "MooseVariableFEBase.h"
@@ -15,58 +6,65 @@
 
 #include "libmesh/mesh_tools.h"
 
-registerMooseObject("MooseApp", MultiAppLayeredIntergral);
+registerMooseObject("MooseApp", MutliAppLayeredIntegral);
 
 InputParameters
-MultiAppLayeredIntergral::validParams()
+MutliAppLayeredIntegral::validParams()
 {
-  InputParameters params = ElementIntegralVariableUserObject::validParams();
+  InputParameters params = ElementIntegralUserObject::validParams();
   params += LayeredBase::validParams();
   params.addClassDescription("Compute variable integrals over layers.");
-
   return params;
 }
 
-MultiAppLayeredIntergral::MultiAppLayeredIntergral(const InputParameters & parameters)
-  : ElementIntegralVariableUserObject(parameters), LayeredBase(parameters)
+MutliAppLayeredIntegral::MutliAppLayeredIntegral(const InputParameters & parameters)
+  : ElementIntegralUserObject(parameters), LayeredBase(parameters)
 {
-  std::cout << "Start MultiAppLayeredIntergral" << std::endl;
+  std::cout << "Start MutliAppLayeredIntegral" << std::endl;
 }
 
 void
-MultiAppLayeredIntergral::initialize()
+MutliAppLayeredIntegral::initialize()
 {
-  ElementIntegralVariableUserObject::initialize();
+  ElementIntegralUserObject::initialize();
   LayeredBase::initialize();
 }
 
 void
-MultiAppLayeredIntergral::execute()
+MutliAppLayeredIntegral::execute()
 {
-  Real integral_value = computeIntegral();
-
+  unsigned int varSize = _variable->sln().size();
+  _u.resize(varSize);
+  _u = _variable->sln();  //Need to double check this formulation
+  //################## BUG ##############################
+  //_u is only recieving zero value instead of actual computed values from the main app)
+  std::cout << "val 1: " << _u[0] << std::endl;
+  std::cout << "val 2: " << _u[1] << std::endl;
+  std::cout << "val 3: " << _u[2] << std::endl;
+  std::cout << "val 4: " << _u[3] << std::endl;
+  Real integral_value = computeIntegral(); //Integral value is zero when test (not supposed to be that)
   unsigned int layer = getLayer(_current_elem->vertex_average());
-
   setLayerValue(layer, getLayerValue(layer) + integral_value);
 }
 
 void
-MultiAppLayeredIntergral::finalize()
+MutliAppLayeredIntegral::finalize()
 {
   LayeredBase::finalize();
 }
 
 void
-MultiAppLayeredIntergral::threadJoin(const UserObject & y)
+MutliAppLayeredIntegral::threadJoin(const UserObject & y)
 {
-  ElementIntegralVariableUserObject::threadJoin(y);
+  ElementIntegralUserObject::threadJoin(y); //Change to ElementIntegralUserObject 
   LayeredBase::threadJoin(y);
 }
 
 const std::vector<Point>
-MultiAppLayeredIntergral::spatialPoints() const
+MutliAppLayeredIntegral::spatialPoints() const
 {
   std::vector<Point> points;
+
 
   for (const auto & l : _layer_centers)
   {
@@ -78,7 +76,12 @@ MultiAppLayeredIntergral::spatialPoints() const
   return points;
 }
 
-// void 
-// MultiAppLayeredIntergral::setVarPointer(MooseVariableFieldBase * ptr){
-//   _multi_app_var = ptr;
-// }
+void 
+MutliAppLayeredIntegral::setVarPointer(MooseVariableFieldBase * ptr){
+  _multi_app_var = ptr;
+  _variable = dynamic_cast<MooseVariableFE<Real> *>(_multi_app_var);
+}
+Real
+MutliAppLayeredIntegral::computeQpIntegral(){ 
+  return _u[_qp];
+}
